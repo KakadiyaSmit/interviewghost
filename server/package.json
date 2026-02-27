@@ -12,7 +12,10 @@
   "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.6",
+<<<<<<< HEAD
     "dotenv": "^17.3.1",
+=======
+>>>>>>> 2d0f06f0f5f6181489109d39ee4840d70325be7e
     "express": "^5.2.1"
   }
 }
