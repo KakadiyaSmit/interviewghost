@@ -1,7 +1,7 @@
 const express = require('express');
 const cors    = require('cors');
 require('dotenv').config();
-require('./config/db'); // connects to database on startup
+require('./config/db');
 
 const app = express();
 
@@ -10,14 +10,13 @@ app.use(cors());
 app.use(express.json());
 
 // --- ROUTES ---
-const healthRoutes = require('./routes/healthRoutes');
-const authRoutes   = require('./routes/authRoutes');
+const healthRoutes  = require('./routes/healthRoutes');
+const authRoutes    = require('./routes/authRoutes');
+const sessionRoutes = require('./routes/sessionRoutes');
 
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
-// This means:
-// /api/auth/register → authRoutes → authController.register
-// /api/auth/login    → authRoutes → authController.login
+app.use('/api/sessions', sessionRoutes);
 
 // --- START SERVER ---
 const PORT = process.env.PORT || 5050;
