@@ -16,3 +16,15 @@ router.post('/register', authController.register);
 router.post('/login', authController.login);
 
 module.exports = router;
+
+const authMiddleware = require('../middleware/authMiddleware');
+
+// Protected route — requires valid JWT
+// This is how we'll protect ALL interview session routes later
+router.get('/me', authMiddleware, (req, res) => {
+  // req.user was set by authMiddleware
+  res.json({
+    message: 'You are authenticated!',
+    user: req.user
+  });
+});
