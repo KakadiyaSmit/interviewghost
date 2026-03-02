@@ -13,10 +13,13 @@ app.use(express.json());
 const healthRoutes  = require('./routes/healthRoutes');
 const authRoutes    = require('./routes/authRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
+const evalRoutes    = require('./routes/evalRoutes');
+
 
 app.use('/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/sessions', sessionRoutes);
+app.use('/api/evaluations', evalRoutes);
 
 // --- START SERVER ---
 const PORT = process.env.PORT || 5050;
