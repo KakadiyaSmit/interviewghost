@@ -1,10 +1,6 @@
-// ============================================================
-// FILE: client/src/App.jsx
-// PURPOSE: Maps URLs to page components
-// ============================================================
-
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
+import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Setup from './pages/Setup'
@@ -12,21 +8,33 @@ import Interview from './pages/Interview'
 import Feedback from './pages/Feedback'
 import Dashboard from './pages/Dashboard'
 
-// ProtectedRoute — redirects to login if not logged in
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
-  if (loading) return <div>Loading...</div>
+  if (loading) return (
+    <div style={{
+      minHeight: '100vh',
+      background: '#050508',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '48px',
+      animation: 'float 2s ease-in-out infinite'
+    }}>
+      👻
+    </div>
+  )
   return user ? children : <Navigate to="/login" />
 }
 
 export default function App() {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Public */}
+      <Route path="/"         element={<Landing />} />
       <Route path="/login"    element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* Protected routes — must be logged in */}
+      {/* Protected */}
       <Route path="/dashboard" element={
         <ProtectedRoute><Dashboard /></ProtectedRoute>
       }/>
@@ -40,8 +48,7 @@ export default function App() {
         <ProtectedRoute><Feedback /></ProtectedRoute>
       }/>
 
-      {/* Default redirect */}
-      <Route path="*" element={<Navigate to="/login" />} />
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   )
 }
