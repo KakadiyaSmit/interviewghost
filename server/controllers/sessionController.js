@@ -4,6 +4,7 @@
 // ============================================================
 
 const sessionService = require('../services/sessionService');
+const pool = require('../config/db');
 
 const sessionController = {
 
@@ -12,13 +13,11 @@ const sessionController = {
     try {
       const { role, difficulty } = req.body;
       const userId = req.user.id;
-      // req.user comes from JWT middleware — already verified!
 
       if (!role) {
         return res.status(400).json({ error: 'Role is required' });
       }
 
-      // This calls Claude and saves to database
       const result = await sessionService.createSession(userId, role, difficulty);
 
       res.status(201).json({
@@ -32,7 +31,7 @@ const sessionController = {
     }
   },
 
-  // GET /api/sessions/:id — get a session
+  // GET /api/sessions/:id — get one session
   getOne: async (req, res) => {
     try {
       const { id } = req.params;
@@ -44,6 +43,20 @@ const sessionController = {
 
     } catch (error) {
       res.status(404).json({ error: error.message });
+    }
+  },
+
+  // GET /api/sessions — get all sessions for logged in user
+  getAll: async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const result = await pool.query(
+        'SELECT * FROM sessions WHERE user_id = $1 ORDER BY created_at DESC',
+        [userId]
+      );
+      res.status(200).json({ sessions: result.rows });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
   }
 
