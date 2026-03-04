@@ -1,15 +1,11 @@
-// ============================================================
-// FILE: client/src/pages/Interview.jsx
-// PURPOSE: Shows questions one by one, user answers each one
-// ============================================================
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getSession, submitAnswer } from '../services/api'
 
 export default function Interview() {
   const { sessionId } = useParams()
   const navigate = useNavigate()
+  const textareaRef = useRef(null)
 
   const [session, setSession]       = useState(null)
   const [questions, setQuestions]   = useState([])
@@ -17,10 +13,13 @@ export default function Interview() {
   const [answer, setAnswer]         = useState('')
   const [loading, setLoading]       = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [startTime, setStartTime]   = useState(null)
   const [error, setError]           = useState('')
+  const [startTime, setStartTime]   = useState(null)
+  const [elapsed, setElapsed]       = useState(0)
+  const [listening, setListening]   = useState(false)
+  const [wordCount, setWordCount]   = useState(0)
 
-  // Load session + questions on mount
+  // Load session
   useEffect(() => {
     const load = async () => {
       try {
@@ -28,185 +27,302 @@ export default function Interview() {
         setSession(res.data.session)
         setQuestions(res.data.questions)
         setStartTime(Date.now())
-      } catch {
-        setError('Failed to load session')
-      } finally {
-        setLoading(false)
-      }
+      } catch { setError('Failed to load session') }
+      finally { setLoading(false) }
     }
     load()
   }, [sessionId])
 
+  // Timer
+  useEffect(() => {
+    if (!startTime) return
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTime) / 1000))
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [startTime])
+
+  // Word count
+  useEffect(() => {
+    setWordCount(answer.trim() ? answer.trim().split(/\s+/).length : 0)
+  }, [answer])
+
+  const formatTime = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`
+
+  const getTimerColor = () => {
+    if (!questions[current]) return 'var(--text-secondary)'
+    const pct = elapsed / questions[current].estimated_time
+    if (pct < 0.6) return 'var(--green)'
+    if (pct < 0.85) return 'var(--yellow)'
+    return 'var(--red)'
+  }
+
+  // Voice input
+  const toggleVoice = () => {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      alert('Voice input not supported in this browser. Try Chrome!')
+      return
+    }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    const recognition = new SR()
+    recognition.continuous = true
+    recognition.interimResults = true
+    recognition.lang = 'en-US'
+
+    if (listening) {
+      recognition.stop()
+      setListening(false)
+      return
+    }
+
+    setListening(true)
+    recognition.start()
+    recognition.onresult = (e) => {
+      const transcript = Array.from(e.results).map(r => r[0].transcript).join('')
+      setAnswer(transcript)
+    }
+    recognition.onend = () => setListening(false)
+  }
+
   const handleSubmit = async () => {
     if (!answer.trim()) return
     setSubmitting(true)
-
     try {
       const timeTaken = Math.floor((Date.now() - startTime) / 1000)
       await submitAnswer(questions[current].id, answer, timeTaken)
-
       if (current + 1 < questions.length) {
-        // Move to next question
         setCurrent(current + 1)
         setAnswer('')
         setStartTime(Date.now())
+        setElapsed(0)
       } else {
-        // All questions done → go to feedback
         navigate(`/feedback/${sessionId}`)
       }
-    } catch {
-      setError('Failed to submit answer')
-    } finally {
-      setSubmitting(false)
-    }
+    } catch { setError('Failed to submit. Try again.') }
+    finally { setSubmitting(false) }
   }
 
-  if (loading) return <div style={styles.center}>Loading your interview...</div>
-  if (error)   return <div style={styles.center}>{error}</div>
-  if (!questions.length) return <div style={styles.center}>No questions found</div>
+  if (loading) return (
+    <div style={styles.loadingPage}>
+      <div style={styles.loadingContent}>
+        <div style={styles.loadingGhost}>👻</div>
+        <p style={styles.loadingText}>Loading your interview...</p>
+        <div style={styles.loadingBar}>
+          <div style={styles.loadingFill} />
+        </div>
+      </div>
+    </div>
+  )
+
+  if (error) return (
+    <div style={styles.loadingPage}>
+      <p style={{ color: 'var(--red)' }}>{error}</p>
+    </div>
+  )
 
   const question = questions[current]
-  const progress = ((current) / questions.length) * 100
+  const progress = (current / questions.length) * 100
+  const typeColors = {
+    technical: 'badge-purple',
+    behavioral: 'badge-cyan',
+    system_design: 'badge-yellow',
+    case: 'badge-green',
+  }
 
   return (
-    <div style={styles.container}>
-      {/* Header */}
-      <div style={styles.header}>
-        <span style={styles.role}>👻 {session?.role}</span>
-        <span style={styles.progress}>
-          Question {current + 1} of {questions.length}
-        </span>
-      </div>
+    <div style={styles.page}>
+      <div style={styles.orb1} />
+      <div style={styles.grid} />
 
-      {/* Progress bar */}
-      <div style={styles.progressBar}>
-        <div style={{ ...styles.progressFill, width: `${progress}%` }} />
-      </div>
-
-      {/* Question card */}
-      <div style={styles.card}>
-        <div style={styles.badges}>
-          <span style={styles.badge}>{question.question_type}</span>
-          <span style={styles.badge}>{question.difficulty}</span>
-          <span style={styles.badge}>
-            ~{Math.floor(question.estimated_time / 60)} min
-          </span>
+      {/* Top bar */}
+      <div style={styles.topBar}>
+        <div style={styles.topLeft}>
+          <span style={styles.topGhost}>👻</span>
+          <div>
+            <div style={styles.topRole}>{session?.role}</div>
+            <div style={styles.topDiff}>{session?.difficulty} difficulty</div>
+          </div>
         </div>
 
-        <h2 style={styles.question}>{question.question_text}</h2>
+        <div style={styles.topCenter}>
+          <div style={styles.progressWrap}>
+            <div style={styles.progressLabel}>
+              Question {current + 1} of {questions.length}
+            </div>
+            <div className="progress-bar" style={{ width: '200px' }}>
+              <div className="progress-fill" style={{ width: `${progress}%` }} />
+            </div>
+          </div>
+        </div>
 
-        <textarea
-          style={styles.textarea}
-          placeholder="Type your answer here..."
-          value={answer}
-          onChange={e => setAnswer(e.target.value)}
-          rows={8}
-        />
+        <div style={styles.topRight}>
+          <div style={{ ...styles.timer, color: getTimerColor() }}>
+            ⏱ {formatTime(elapsed)}
+          </div>
+          {question && (
+            <div style={styles.timerTarget}>
+              / {formatTime(question.estimated_time)}
+            </div>
+          )}
+        </div>
+      </div>
 
-        {error && <div style={styles.error}>{error}</div>}
+      {/* Main content */}
+      <div style={styles.main}>
+        {/* Question */}
+        <div className="animate-fade-up" style={styles.questionCard} key={current}>
+          <div style={styles.questionMeta}>
+            <span className={`badge ${typeColors[question?.question_type] || 'badge-purple'}`}>
+              {question?.question_type?.replace('_', ' ')}
+            </span>
+            <span className={`badge ${question?.difficulty === 'hard' ? 'badge-red' : question?.difficulty === 'easy' ? 'badge-green' : 'badge-yellow'}`}>
+              {question?.difficulty}
+            </span>
+            <span className="badge badge-purple" style={{ marginLeft: 'auto' }}>
+              ~{Math.floor((question?.estimated_time || 0) / 60)} min
+            </span>
+          </div>
 
-        <button
-          style={styles.button}
-          onClick={handleSubmit}
-          disabled={submitting || !answer.trim()}
-        >
-          {submitting
-            ? '🤖 Claude is evaluating...'
-            : current + 1 === questions.length
-            ? 'Finish Interview →'
-            : 'Submit & Next →'
-          }
-        </button>
+          <h2 style={styles.questionText}>{question?.question_text}</h2>
+        </div>
+
+        {/* Answer area */}
+        <div className="animate-fade-up stagger-2" style={styles.answerCard}>
+          <div style={styles.answerHeader}>
+            <span style={styles.answerLabel}>Your Answer</span>
+            <div style={styles.answerActions}>
+              <span style={styles.wordCount}>{wordCount} words</span>
+              <button
+                style={{
+                  ...styles.voiceBtn,
+                  background: listening ? 'rgba(239,68,68,0.15)' : 'rgba(139,92,246,0.1)',
+                  border: listening ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(139,92,246,0.2)',
+                  color: listening ? 'var(--red)' : 'var(--purple-bright)',
+                  animation: listening ? 'pulse-glow 1.5s ease infinite' : 'none',
+                }}
+                onClick={toggleVoice}
+              >
+                {listening ? '🔴 Stop Recording' : '🎤 Voice Input'}
+              </button>
+            </div>
+          </div>
+
+          <textarea
+            ref={textareaRef}
+            style={styles.textarea}
+            placeholder="Type your answer here, or use voice input above...&#10;&#10;💡 Tip: Structure your answer with clear points. For technical questions, explain your thought process. For behavioral questions, use the STAR method."
+            value={answer}
+            onChange={e => setAnswer(e.target.value)}
+            rows={10}
+          />
+
+          {error && <div style={styles.errorBox}>{error}</div>}
+
+          <div style={styles.submitRow}>
+            <div style={styles.submitHint}>
+              {answer.trim().length < 50
+                ? '⚠️ Add more detail for a better score'
+                : '✅ Good length — ready to submit'
+              }
+            </div>
+            <button
+              className="btn-primary"
+              style={styles.submitBtn}
+              onClick={handleSubmit}
+              disabled={submitting || !answer.trim()}
+            >
+              {submitting ? (
+                <span style={styles.loadingRow}>
+                  <span style={styles.spinner} />
+                  🤖 Claude is evaluating...
+                </span>
+              ) : current + 1 === questions.length
+                ? '🏁 Finish Interview'
+                : 'Submit & Next →'
+              }
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
 const styles = {
-  container: {
-    minHeight: '100vh',
-    background: '#0f0f0f',
-    padding: '24px',
-    maxWidth: '800px',
-    margin: '0 auto',
+  page: { minHeight: '100vh', background: 'var(--bg-primary)', position: 'relative' },
+  orb1: {
+    position: 'fixed', top: '-15%', right: '-5%', width: '500px', height: '500px',
+    background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)',
+    borderRadius: '50%', pointerEvents: 'none', zIndex: 0,
+    animation: 'orb-float 10s ease-in-out infinite',
   },
-  center: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#fff',
-    background: '#0f0f0f',
+  grid: {
+    position: 'fixed', inset: 0, zIndex: 0,
+    backgroundImage: 'linear-gradient(rgba(139,92,246,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.02) 1px, transparent 1px)',
+    backgroundSize: '40px 40px', pointerEvents: 'none',
   },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '16px',
+  loadingPage: {
+    minHeight: '100vh', background: 'var(--bg-primary)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  role: { color: '#fff', fontSize: '18px', fontWeight: 'bold' },
-  progress: { color: '#888', fontSize: '14px' },
-  progressBar: {
-    height: '4px',
-    background: '#333',
-    borderRadius: '2px',
-    marginBottom: '32px',
+  loadingContent: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' },
+  loadingGhost: { fontSize: '64px', animation: 'float 2s ease-in-out infinite' },
+  loadingText: { color: 'var(--text-secondary)', fontSize: '16px' },
+  loadingBar: { width: '200px', height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', overflow: 'hidden' },
+  loadingFill: { height: '100%', background: 'linear-gradient(90deg, var(--purple), var(--cyan))', borderRadius: '2px', animation: 'shimmer 1.5s ease infinite', backgroundSize: '200% 100%' },
+  topBar: {
+    position: 'sticky', top: 0, zIndex: 10,
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '16px 32px',
+    background: 'rgba(5,5,8,0.8)', backdropFilter: 'blur(20px)',
+    borderBottom: '1px solid rgba(255,255,255,0.06)',
   },
-  progressFill: {
-    height: '100%',
-    background: '#6c47ff',
-    borderRadius: '2px',
-    transition: 'width 0.3s ease',
+  topLeft: { display: 'flex', alignItems: 'center', gap: '12px' },
+  topGhost: { fontSize: '24px' },
+  topRole: { color: 'var(--text-primary)', fontSize: '14px', fontWeight: 600 },
+  topDiff: { color: 'var(--text-muted)', fontSize: '12px', textTransform: 'capitalize' },
+  topCenter: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' },
+  progressWrap: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' },
+  progressLabel: { color: 'var(--text-muted)', fontSize: '12px', fontFamily: 'var(--font-mono)' },
+  topRight: { display: 'flex', alignItems: 'center', gap: '6px' },
+  timer: { fontFamily: 'var(--font-mono)', fontSize: '20px', fontWeight: 500, transition: 'color 0.5s ease' },
+  timerTarget: { color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '14px' },
+  main: { maxWidth: '800px', margin: '0 auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative', zIndex: 1 },
+  questionCard: {
+    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '20px', padding: '32px',
   },
-  card: {
-    background: '#1a1a1a',
-    padding: '32px',
-    borderRadius: '12px',
-    border: '1px solid #333',
+  questionMeta: { display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap' },
+  questionText: { color: 'var(--text-primary)', fontSize: '22px', fontWeight: 600, lineHeight: 1.6, fontFamily: 'var(--font-display)' },
+  answerCard: {
+    background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: '20px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px',
   },
-  badges: { display: 'flex', gap: '8px', marginBottom: '20px' },
-  badge: {
-    background: '#2a2a2a',
-    color: '#aaa',
-    padding: '4px 12px',
-    borderRadius: '20px',
-    fontSize: '12px',
-    textTransform: 'capitalize',
-  },
-  question: {
-    color: '#fff',
-    fontSize: '20px',
-    lineHeight: '1.6',
-    marginBottom: '24px',
+  answerHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  answerLabel: { color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' },
+  answerActions: { display: 'flex', alignItems: 'center', gap: '12px' },
+  wordCount: { color: 'var(--text-muted)', fontSize: '12px', fontFamily: 'var(--font-mono)' },
+  voiceBtn: {
+    padding: '8px 16px', borderRadius: '20px', cursor: 'pointer',
+    fontSize: '13px', fontWeight: 600, transition: 'all 0.2s ease',
   },
   textarea: {
-    width: '100%',
-    padding: '16px',
-    background: '#2a2a2a',
-    border: '1px solid #444',
-    borderRadius: '8px',
-    color: '#fff',
-    fontSize: '16px',
-    resize: 'vertical',
-    boxSizing: 'border-box',
-    marginBottom: '16px',
+    width: '100%', padding: '16px', background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px',
+    color: 'var(--text-primary)', fontFamily: 'var(--font-body)', fontSize: '15px',
+    lineHeight: 1.7, resize: 'vertical', outline: 'none', transition: 'border 0.2s ease',
   },
-  button: {
-    width: '100%',
-    padding: '14px',
-    background: '#6c47ff',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '16px',
-    cursor: 'pointer',
+  errorBox: {
+    background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
+    color: '#fca5a5', padding: '12px 16px', borderRadius: '10px', fontSize: '14px',
   },
-  error: {
-    background: '#ff4444',
-    color: '#fff',
-    padding: '10px',
-    borderRadius: '8px',
-    marginBottom: '16px',
-    textAlign: 'center',
+  submitRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' },
+  submitHint: { color: 'var(--text-muted)', fontSize: '13px', flex: 1 },
+  submitBtn: { padding: '14px 32px', fontSize: '15px', whiteSpace: 'nowrap' },
+  loadingRow: { display: 'flex', alignItems: 'center', gap: '10px' },
+  spinner: {
+    width: '16px', height: '16px', borderRadius: '50%',
+    border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff',
+    display: 'inline-block', animation: 'spin 0.7s linear infinite',
   },
 }
