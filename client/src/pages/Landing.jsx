@@ -328,16 +328,33 @@ const styles = {
   navLogo: { display: 'flex', alignItems: 'center', gap: '10px' },
   navGhost: { fontSize: '24px' },
   navBrand: { fontFamily: 'var(--font-display)', fontSize: '20px', fontWeight: 800, letterSpacing: '-0.02em' },
-  navLinks: { display: 'flex', gap: '32px' },
+  navLinks: { 
+    display: 'none' 
+  },
   navLink: { color: 'var(--text-muted)', textDecoration: 'none', fontSize: '14px', fontWeight: 500, transition: 'color 0.2s ease' },
   navActions: { display: 'flex', gap: '12px', alignItems: 'center' },
-  navLoginBtn: { background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-secondary)', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontFamily: 'var(--font-body)', transition: 'all 0.2s ease' },
+  navLoginBtn: { 
+    display: 'none' 
+  },
   navCTABtn: { padding: '8px 20px', fontSize: '14px' },
   hero: { position: 'relative', zIndex: 1, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '140px 24px 80px' },
   heroBadge: { display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 18px', borderRadius: '50px', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)', color: 'var(--purple-bright)', fontSize: '13px', fontWeight: 500 },
   heroBadgeDot: { width: '6px', height: '6px', borderRadius: '50%', background: 'var(--purple-bright)', boxShadow: '0 0 8px var(--purple-glow)', display: 'inline-block' },
-  heroTitle: { fontFamily: 'var(--font-display)', fontSize: '36px', fontWeight: 700, lineHeight: 1.3, letterSpacing: '-0.01em', maxWidth: '700px', textAlign: 'center' },
-  heroRoleWrap: { display: 'inline', fontSize: '40px', whiteSpace: 'nowrap' },
+  heroTitle: { 
+    fontFamily: 'var(--font-display)', 
+    fontSize: 'clamp(20px, 5vw, 36px)', 
+    fontWeight: 700, 
+    lineHeight: 1.3, 
+    letterSpacing: '-0.01em', 
+    maxWidth: '700px', 
+    textAlign: 'center' 
+  },
+  heroRoleWrap: { 
+    display: 'block', 
+    fontSize: 'clamp(22px, 6vw, 40px)', 
+    whiteSpace: 'normal',
+    wordBreak: 'break-word',
+  },
   cursor: { color: 'var(--purple-bright)', marginLeft: '2px' },
   heroSub: { color: 'var(--text-secondary)', fontSize: '16px', lineHeight: 1.7, maxWidth: '520px', textAlign: 'center' },
   heroActions: { display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' },
