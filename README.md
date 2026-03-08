@@ -247,7 +247,7 @@ Built by **Smit Kakadiya** — sophomore CS student at SF State, building in pub
 
 Started with zero backend experience. Built this to stand out in internship recruiting and to prove that you don't need years of experience to ship real products.
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)](https://linkedin.com/in/smit-kakadiya)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)](https://linkedin.com/in/smit-kakadiya-a5232334b)
 [![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=flat&logo=github)](https://github.com/KakadiyaSmit)
 
 ---
