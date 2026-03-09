@@ -243,10 +243,24 @@ export default function Dashboard() {
               </div>
 
               {loading ? (
-                <div style={st.emptyCard}>
-                  <div style={{ fontSize: '32px', animation: 'float 2s ease-in-out infinite' }}>👻</div>
-                  <p style={{ color: 'var(--text-muted)' }}>Loading sessions...</p>
-                </div>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    {[1,2,3].map(i => (
+      <div key={i} style={{
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: '16px', padding: '20px',
+        animation: 'pulse 1.5s ease-in-out infinite'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ width: '160px', height: '16px', borderRadius: '8px', background: 'rgba(255,255,255,0.07)' }} />
+            <div style={{ width: '100px', height: '12px', borderRadius: '6px', background: 'rgba(255,255,255,0.04)' }} />
+          </div>
+          <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255,255,255,0.07)' }} />
+        </div>
+      </div>
+    ))}
+  </div>
               ) : sessions.length === 0 ? (
                 <div style={st.emptyCard}>
                   <div style={{ fontSize: '48px' }}>🚀</div>
