@@ -65,7 +65,9 @@ Scoring guide:
   // STEP 4: Parse Claude's evaluation
   let evaluation;
   try {
-    evaluation = JSON.parse(message.content[0].text);
+    const rawText = message.content[0].text;
+    const cleanEval = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+    evaluation = JSON.parse(cleanEval);
   } catch (error) {
     throw new Error('Failed to parse evaluation. Please try again.');
   }
