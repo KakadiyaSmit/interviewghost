@@ -96,6 +96,10 @@ export default function Login() {
           </form>
 
           <p style={styles.switchText}>
+            Forgot your password?{' '}
+            <Link to="/forgot-password" style={styles.link}>Reset it</Link>
+          </p>
+          <p style={styles.switchText}>
             Don't have an account?{' '}
             <Link to="/register" style={styles.link}>Create one</Link>
           </p>

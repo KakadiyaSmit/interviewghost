@@ -46,3 +46,6 @@ const verifyOTP = (email, otp) => {
 }
 
 module.exports = { sendOTP, verifyOTP }
+
+// Export otpStore for password reset verification
+module.exports.otpStore = otpStore

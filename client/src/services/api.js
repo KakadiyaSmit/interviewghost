@@ -31,3 +31,15 @@ export const submitAnswer = (questionId, answer, timeTaken) =>
   api.post('/evaluations', { questionId, answer, timeTaken });
 
 export default api;
+
+export const forgotPassword = (email) =>
+  api.post('/auth/forgot-password', { email })
+
+export const resetPassword = (email, otp, newPassword) =>
+  api.post('/auth/reset-password', { email, otp, newPassword })
+
+export const forgotPassword = (email) =>
+  api.post('/auth/forgot-password', { email })
+
+export const resetPassword = (email, otp, newPassword) =>
+  api.post('/auth/reset-password', { email, otp, newPassword })
