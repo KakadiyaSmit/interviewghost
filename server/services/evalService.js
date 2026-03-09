@@ -32,7 +32,7 @@ QUESTION: ${question.question_text}
 QUESTION TYPE: ${question.question_type}
 DIFFICULTY: ${question.difficulty}
 
-CANDIDATE'S ANSWER: ${userAnswer.slice(0, 2000)}
+CANDIDATE'S ANSWER: ${userAnswer.slice(0, 3000)}
 
 Evaluate this answer and return ONLY a valid JSON object with no other text:
 {
