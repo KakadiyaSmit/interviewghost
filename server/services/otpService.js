@@ -1,6 +1,6 @@
-const nodemailer = require('nodemailer')
-const pool = require('../config/db')
+const { Resend } = require('resend')
 
+const resend = new Resend(process.env.RESEND_API_KEY)
 const otpStore = {}
 
 const generateOTP = () => String(Math.floor(100000 + Math.random() * 900000))
@@ -11,16 +11,8 @@ const sendOTP = async (email) => {
 
   otpStore[email] = { otp, expiresAt }
 
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  })
-
-  await transporter.sendMail({
-    from: `"InterviewGhost 👻" <${process.env.EMAIL_USER}>`,
+  await resend.emails.send({
+    from: 'InterviewGhost <onboarding@resend.dev>',
     to: email,
     subject: 'Your InterviewGhost verification code',
     html: `
