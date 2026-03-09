@@ -1,85 +1,73 @@
-// ============================================================
-// FILE: server/controllers/authController.js
-// ROLE: The KITCHEN MANAGER
-// PURPOSE: Receives HTTP requests, calls authService,
-// sends back responses. No logic — just coordination.
-// ============================================================
-
-const authService = require('../services/authService');
+const authService = require('../services/authService')
+const { sendOTP, verifyOTP } = require('../services/otpService')
 
 const authController = {
 
-  // --------------------------------------------------------
-  // REGISTER HANDLER
-  // Called when: POST /api/auth/register
-  // Expects: { email, password } in request body
-  // --------------------------------------------------------
-  register: async (req, res) => {
+  sendOtp: async (req, res) => {
     try {
-      // Extract email and password from request body
-      // req.body works because of express.json() middleware
-      const { email, password } = req.body;
+      const { email } = req.body
+      if (!email) return res.status(400).json({ error: 'Email is required' })
 
-      // Basic validation — never trust user input!
-      if (!email || !password) {
-        return res.status(400).json({
-          error: 'Email and password are required'
-        });
-        // 400 = Bad Request (user sent wrong data)
+      const pool = require('../config/db')
+      const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email])
+      if (existing.rows.length > 0) {
+        return res.status(400).json({ error: 'Email already registered' })
       }
 
-      if (password.length < 6) {
-        return res.status(400).json({
-          error: 'Password must be at least 6 characters'
-        });
-      }
-
-      // Call the service to do the real work
-      const result = await authService.register(email, password);
-
-      // 201 = Created (something new was created)
-      res.status(201).json({
-        message: 'Account created successfully!',
-        token: result.token,
-        user: result.user
-      });
-
+      await sendOTP(email)
+      res.json({ message: 'OTP sent! Check your email.' })
     } catch (error) {
-      // If service throws an error, catch it here
-      // and send it back as a 400 response
-      res.status(400).json({ error: error.message });
+      console.error('Send OTP error:', error)
+      res.status(500).json({ error: 'Failed to send OTP. Try again.' })
     }
   },
 
-  // --------------------------------------------------------
-  // LOGIN HANDLER
-  // Called when: POST /api/auth/login
-  // Expects: { email, password } in request body
-  // --------------------------------------------------------
-  login: async (req, res) => {
+  register: async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { email, password, name, otp } = req.body
 
       if (!email || !password) {
-        return res.status(400).json({
-          error: 'Email and password are required'
-        });
+        return res.status(400).json({ error: 'Email and password are required' })
+      }
+      if (password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' })
+      }
+      if (!otp) {
+        return res.status(400).json({ error: 'OTP is required' })
       }
 
-      const result = await authService.login(email, password);
+      const verification = verifyOTP(email, otp)
+      if (!verification.valid) {
+        return res.status(400).json({ error: verification.reason })
+      }
 
-      // 200 = OK (request succeeded)
+      const result = await authService.register(email, password, name)
+      res.status(201).json({
+        message: 'Account created successfully!',
+        token: result.token,
+        user: result.user,
+      })
+    } catch (error) {
+      res.status(400).json({ error: error.message })
+    }
+  },
+
+  login: async (req, res) => {
+    try {
+      const { email, password } = req.body
+      if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' })
+      }
+      const result = await authService.login(email, password)
       res.status(200).json({
         message: 'Login successful!',
         token: result.token,
-        user: result.user
-      });
-
+        user: result.user,
+      })
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message })
     }
-  }
+  },
+}
 
-};
-
-module.exports = authController;
+module.exports = authController

@@ -1,22 +1,42 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { registerUser } from '../services/api'
+import { registerUser, sendOtp } from '../services/api'
 
 export default function Register() {
+  const [step, setStep]         = useState(1) // 1=details, 2=otp
+  const [name, setName]         = useState('')
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
+  const [otp, setOtp]           = useState('')
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
+  const [otpSent, setOtpSent]   = useState(false)
   const { login } = useAuth()
   const navigate  = useNavigate()
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSendOtp = async () => {
     setError('')
+    if (!email || !password) return setError('Email and password are required')
+    if (password.length < 6) return setError('Password must be at least 6 characters')
     setLoading(true)
     try {
-      const res = await registerUser(email, password)
+      await sendOtp(email)
+      setOtpSent(true)
+      setStep(2)
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to send OTP')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerify = async () => {
+    setError('')
+    if (!otp) return setError('Enter the OTP from your email')
+    setLoading(true)
+    try {
+      const res = await registerUser(email, password, name, otp)
       login(res.data.token, res.data.user)
       navigate('/dashboard')
     } catch (err) {
@@ -43,8 +63,22 @@ export default function Register() {
 
         <div className="glass animate-fade-up stagger-2" style={styles.card}>
           <div style={styles.cardHeader}>
-            <h2 style={styles.cardTitle}>Create account</h2>
-            <p style={styles.cardSub}>Start practicing in seconds</p>
+            <h2 style={styles.cardTitle}>
+              {step === 1 ? 'Create account' : 'Verify your email'}
+            </h2>
+            <p style={styles.cardSub}>
+              {step === 1 ? 'Start practicing in seconds' : `We sent a code to ${email}`}
+            </p>
+          </div>
+
+          {/* Step indicator */}
+          <div style={styles.stepRow}>
+            {[1, 2].map(s => (
+              <div key={s} style={{
+                ...styles.stepDot,
+                background: step >= s ? 'var(--purple-bright)' : 'rgba(255,255,255,0.1)'
+              }} />
+            ))}
           </div>
 
           {error && (
@@ -53,62 +87,113 @@ export default function Register() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <div style={styles.fieldWrap}>
-              <label style={styles.label}>Email</label>
-              <input
-                className="input-field"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div style={styles.fieldWrap}>
-              <label style={styles.label}>Password</label>
-              <input
-                className="input-field"
-                type="password"
-                placeholder="Min. 6 characters"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            {/* Password strength indicator */}
-            {password.length > 0 && (
-              <div style={styles.strengthWrap}>
-                {[1,2,3,4].map(i => (
-                  <div key={i} style={{
-                    ...styles.strengthBar,
-                    background: password.length >= i * 2
-                      ? i <= 1 ? 'var(--red)'
-                        : i <= 2 ? 'var(--yellow)'
-                        : i <= 3 ? 'var(--purple)'
-                        : 'var(--green)'
-                      : 'rgba(255,255,255,0.08)'
-                  }} />
-                ))}
-                <span style={styles.strengthLabel}>
-                  {password.length < 4 ? 'Weak' : password.length < 6 ? 'Fair' : password.length < 8 ? 'Good' : 'Strong'}
-                </span>
+          {step === 1 ? (
+            <div style={styles.form}>
+              <div style={styles.fieldWrap}>
+                <label style={styles.label}>Name</label>
+                <input
+                  className="input-field"
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                />
               </div>
-            )}
+              <div style={styles.fieldWrap}>
+                <label style={styles.label}>Email</label>
+                <input
+                  className="input-field"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div style={styles.fieldWrap}>
+                <label style={styles.label}>Password</label>
+                <input
+                  className="input-field"
+                  type="password"
+                  placeholder="Min. 6 characters"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                />
+              </div>
 
-            <button
-              className="btn-primary"
-              style={styles.submitBtn}
-              disabled={loading}
-            >
-              {loading ? (
-                <span style={styles.loadingRow}>
-                  <span style={styles.spinner} /> Creating account...
-                </span>
-              ) : 'Create Account →'}
-            </button>
-          </form>
+              {password.length > 0 && (
+                <div style={styles.strengthWrap}>
+                  {[1,2,3,4].map(i => (
+                    <div key={i} style={{
+                      ...styles.strengthBar,
+                      background: password.length >= i * 2
+                        ? i <= 1 ? 'var(--red)'
+                          : i <= 2 ? 'var(--yellow)'
+                          : i <= 3 ? 'var(--purple)'
+                          : 'var(--green)'
+                        : 'rgba(255,255,255,0.08)'
+                    }} />
+                  ))}
+                  <span style={styles.strengthLabel}>
+                    {password.length < 4 ? 'Weak' : password.length < 6 ? 'Fair' : password.length < 8 ? 'Good' : 'Strong'}
+                  </span>
+                </div>
+              )}
+
+              <button
+                className="btn-primary"
+                style={styles.submitBtn}
+                onClick={handleSendOtp}
+                disabled={loading}
+              >
+                {loading ? (
+                  <span style={styles.loadingRow}>
+                    <span style={styles.spinner} /> Sending code...
+                  </span>
+                ) : 'Send Verification Code →'}
+              </button>
+            </div>
+          ) : (
+            <div style={styles.form}>
+              <div style={styles.otpHint}>
+                📧 Check your inbox for a 6-digit code
+              </div>
+              <div style={styles.fieldWrap}>
+                <label style={styles.label}>Verification Code</label>
+                <input
+                  className="input-field"
+                  type="text"
+                  placeholder="Enter 6-digit code"
+                  value={otp}
+                  onChange={e => setOtp(e.target.value)}
+                  maxLength={6}
+                  style={{ fontSize: '24px', letterSpacing: '8px', textAlign: 'center' }}
+                />
+              </div>
+
+              <button
+                className="btn-primary"
+                style={styles.submitBtn}
+                onClick={handleVerify}
+                disabled={loading}
+              >
+                {loading ? (
+                  <span style={styles.loadingRow}>
+                    <span style={styles.spinner} /> Verifying...
+                  </span>
+                ) : 'Verify & Create Account →'}
+              </button>
+
+              <button
+                style={styles.resendBtn}
+                onClick={handleSendOtp}
+                disabled={loading}
+              >
+                Resend code
+              </button>
+            </div>
+          )}
 
           <p style={styles.switchText}>
             Already have an account?{' '}
@@ -116,7 +201,6 @@ export default function Register() {
           </p>
         </div>
 
-        {/* Feature pills */}
         <div className="animate-fade-up stagger-3" style={styles.pills}>
           {['🤖 Claude AI', '📊 Smart Scoring', '🎯 Role-specific'].map((f, i) => (
             <div key={i} style={styles.pill}>{f}</div>
@@ -175,12 +259,14 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.08)',
     borderRadius: '24px',
   },
-  cardHeader: { marginBottom: '24px' },
+  cardHeader: { marginBottom: '16px' },
   cardTitle: {
     fontFamily: 'var(--font-display)', fontSize: '22px',
     fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px',
   },
   cardSub: { color: 'var(--text-muted)', fontSize: '14px' },
+  stepRow: { display: 'flex', gap: '8px', marginBottom: '20px' },
+  stepDot: { height: '3px', flex: 1, borderRadius: '2px', transition: 'background 0.3s ease' },
   errorBox: {
     background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
     color: '#fca5a5', padding: '12px 16px', borderRadius: '10px',
@@ -189,10 +275,19 @@ const styles = {
   form: { display: 'flex', flexDirection: 'column', gap: '16px' },
   fieldWrap: { display: 'flex', flexDirection: 'column', gap: '6px' },
   label: { color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 500 },
+  otpHint: {
+    background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)',
+    color: '#c4b5fd', padding: '12px 16px', borderRadius: '10px',
+    fontSize: '14px', textAlign: 'center',
+  },
   strengthWrap: { display: 'flex', alignItems: 'center', gap: '6px' },
   strengthBar: { flex: 1, height: '3px', borderRadius: '2px', transition: 'background 0.3s ease' },
   strengthLabel: { color: 'var(--text-muted)', fontSize: '11px', whiteSpace: 'nowrap', minWidth: '36px' },
   submitBtn: { width: '100%', padding: '14px', marginTop: '8px', fontSize: '15px' },
+  resendBtn: {
+    background: 'none', border: 'none', color: 'var(--purple-bright)',
+    fontSize: '14px', cursor: 'pointer', textAlign: 'center', padding: '4px',
+  },
   loadingRow: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' },
   spinner: {
     width: '16px', height: '16px', borderRadius: '50%',
