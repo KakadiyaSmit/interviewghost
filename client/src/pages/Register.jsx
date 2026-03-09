@@ -168,7 +168,7 @@ export default function Register() {
                   value={otp}
                   onChange={e => setOtp(e.target.value)}
                   maxLength={6}
-                  style={{ fontSize: '24px', letterSpacing: '8px', textAlign: 'center' }}
+                  style={{ fontSize: '32px', letterSpacing: '6px', textAlign: 'center', whiteSpace: 'nowrap' }}
                 />
               </div>
 
