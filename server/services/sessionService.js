@@ -41,7 +41,7 @@ For each question provide:
 - Estimated time in seconds to answer
 - Key points a strong answer should cover
 
-Return ONLY a valid JSON array with no other text, markdown, or explanation.
+Return ONLY a valid JSON array. No markdown, no backticks, no explanation, no text before or after. Just the raw JSON array starting with [ and ending with ]
 Use this exact format:
 [
   {
@@ -79,7 +79,8 @@ Use this exact format:
 
   let questions;
   try {
-    questions = JSON.parse(responseText);
+    const cleanText = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+    questions = JSON.parse(cleanText);
     // JSON.parse converts the string into a JavaScript array
     // If Claude returns anything other than valid JSON, this throws
   } catch (error) {
