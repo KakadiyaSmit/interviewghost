@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { registerUser, sendOtp } from '../services/api'
+import toast from 'react-hot-toast'
 
 export default function Register() {
   const [step, setStep]         = useState(1) // 1=details, 2=otp
@@ -22,10 +23,10 @@ export default function Register() {
     setLoading(true)
     try {
       await sendOtp(email)
-      setOtpSent(true)
+      setOtpSent(true); toast.success('Code sent! Check your email 📧')
       setStep(2)
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to send OTP')
+      const msg1 = err.response?.data?.error || 'Failed to send OTP'; setError(msg1); toast.error(msg1)
     } finally {
       setLoading(false)
     }
@@ -38,9 +39,9 @@ export default function Register() {
     try {
       const res = await registerUser(email, password, name, otp)
       login(res.data.token, res.data.user)
-      navigate('/dashboard')
+      toast.success('Account created! Welcome 👻'); navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed')
+      const msg2 = err.response?.data?.error || 'Registration failed'; setError(msg2); toast.error(msg2)
     } finally {
       setLoading(false)
     }

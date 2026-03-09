@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { loginUser } from '../services/api'
+import toast from 'react-hot-toast'
 
 export default function Login() {
   const [email, setEmail]       = useState('')
@@ -18,9 +19,9 @@ export default function Login() {
     try {
       const res = await loginUser(email, password)
       login(res.data.token, res.data.user)
-      navigate('/dashboard')
+      toast.success('Welcome back! 👻'); navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed')
+      const msg = err.response?.data?.error || 'Login failed'; setError(msg); toast.error(msg)
     } finally {
       setLoading(false)
     }
