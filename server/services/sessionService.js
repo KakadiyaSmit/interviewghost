@@ -57,7 +57,7 @@ Use this exact format:
   // STEP 2: Call Claude API
   // This is the actual API call to Anthropic
   const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-5',
     // claude-sonnet = best balance of speed + quality + cost
     
     max_tokens: 2000,
