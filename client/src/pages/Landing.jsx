@@ -17,10 +17,10 @@ const FEATURES = [
   { icon: '📈', title: 'Track Your Progress', desc: 'See your scores improve over time. Every session is saved so you can measure your growth and double down on weak areas.', color: 'var(--cyan)' },
 ]
 const TESTIMONIALS = [
-  { name: 'Early Access', role: 'CS Student @ SFSU', avatar: '👨‍💻', text: 'InterviewGhost is exactly what students like us need — real AI feedback instead of just solving problems alone. Try it free!', score: null },
-  { name: 'Built for You', role: 'Any Role · Any Level', avatar: '🎯', text: 'Practice Software Engineer, Product Manager, Data Science interviews and more. Tailored questions every single time.', score: null },
-  { name: 'Ship It', role: 'Sophomore → Internship', avatar: '🚀', text: 'Built by a sophomore who wanted to stand out. If I could build this with zero experience, imagine what you can do with it.', score: null },
-]
+    { name: 'Smit Kakadiya', role: 'CS Student @ SF State', avatar: '👨‍💻', text: 'I built InterviewGhost because I wanted to stand out in internship recruiting. No recycled questions, no vague feedback — just real AI-powered interview simulation.', score: null, tag: 'Builder' },
+    { name: 'Early Access', role: 'Be the first to try it', avatar: '🚀', text: 'InterviewGhost is just launching. Be one of the first students to use it and help shape what it becomes. Free to start, no credit card needed.', score: null, tag: 'New' },
+    { name: 'Your Story Here', role: 'Could be you', avatar: '🎯', text: 'Practice with real AI feedback, track your progress, and land your dream internship. Join early and get full access free while we grow.', score: null, tag: 'Soon' },
+  ]
 const FAQS = [
   { q: 'Is InterviewGhost really free?', a: 'Yes! You can start completely free with 5 sessions per month. No credit card required.' },
   { q: 'How is this different from LeetCode?', a: "LeetCode gives you problems to solve alone. InterviewGhost simulates a real interview — it asks questions, listens to your answers, and gives you detailed feedback just like a real interviewer would." },
