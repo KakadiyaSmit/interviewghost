@@ -142,7 +142,7 @@ export default function Feedback() {
   }, [sessionId])
 
   const handleShare = () => {
-    const text = `Just scored ${Math.round(avgScore)}/100 on a ${session?.role} interview with InterviewGhost! 👻\n\nPractice AI-powered interviews free at interviewghost-two.vercel.app`
+    const text = `Just scored ${Math.round(avgScore)}/100 on a ${session?.role} interview with InterviewGhost! 👻\n\nPractice AI-powered interviews free at interviewghost.site`
     navigator.clipboard.writeText(text).then(() => {
       toast.success('Score card copied! Paste it anywhere 🔥')
     })
