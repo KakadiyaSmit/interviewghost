@@ -12,7 +12,7 @@ const sendOTP = async (email) => {
   otpStore[email] = { otp, expiresAt }
 
   await resend.emails.send({
-    from: 'InterviewGhost <onboarding@resend.dev>',
+    from: 'InterviewGhost <noreply@interviewghost.site>',
     to: email,
     subject: 'Your InterviewGhost verification code',
     html: `
