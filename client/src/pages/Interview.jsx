@@ -196,7 +196,7 @@ export default function Interview() {
         ...styles.topBar,
         borderBottom: pressureMode ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(255,255,255,0.06)',
       }}>
-        <div style={styles.topLeft}>
+        <div style={{...styles.topLeft, cursor: 'pointer'}} onClick={() => navigate("/")}>
           <span style={styles.topGhost}>👻</span>
           <div>
             <div style={styles.topRole}>{session?.role}</div>

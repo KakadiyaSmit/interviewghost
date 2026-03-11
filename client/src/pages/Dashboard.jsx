@@ -157,9 +157,9 @@ export default function Dashboard() {
 
       {/* Navbar */}
       <nav style={st.nav}>
-        <div style={st.navLeft}>
+        <div style={{...st.navLeft, cursor: 'pointer'}} onClick={() => navigate('/')}>
           <span style={st.navGhost}>👻</span>
-          <span style={st.navBrand}>Interview<span className="gradient-text">Ghost</span></span>
+          <span style={{...st.navBrand, cursor: 'pointer'}} onClick={() => navigate("/")}>Interview<span className="gradient-text">Ghost</span></span>
         </div>
         <div style={st.navCenter}>
           {['overview', 'progress', 'badges'].map(tab => (
