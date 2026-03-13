@@ -315,7 +315,12 @@ export default function Feedback() {
             )}
 
             <div className="animate-fade-up" style={styles.actions}>
-              <button className="btn-primary" style={styles.actionBtn} onClick={() => navigate('/setup')}>
+              <button className="btn-primary" style={styles.actionBtn} onClick={() => navigate("/setup")}>
+                🚀 Practice Again
+              </button>
+              <button className="btn-secondary" style={{...styles.actionBtn, background: "transparent", border: "1px solid rgba(139,92,246,0.4)", color: "#a78bfa"}} onClick={() => navigate("/")}>
+                🏠 Go Home
+              </button>
                 🚀 Practice Again
               </button>
               <button style={{ ...styles.actionBtn, ...styles.actionBtnSecondary }} onClick={() => navigate('/dashboard')}>
