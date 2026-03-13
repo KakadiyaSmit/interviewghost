@@ -26,3 +26,9 @@ const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
+
+// Keep Render awake every 14 minutes
+setInterval(() => {
+  fetch('https://interviewghost-api.onrender.com/api/health')
+    .catch(() => {});
+}, 14 * 60 * 1000);
