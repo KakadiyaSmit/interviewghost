@@ -206,7 +206,7 @@ export default function Dashboard() {
                 </h1>
                 <p style={st.heroSub}>
                   {sessions.length === 0
-                    ? 'Practice with Claude AI, get real-time feedback, and track your progress.'
+                    ? 'Practice with AI, get real-time feedback, and track your progress.'
                     : `${completed.length} sessions completed · Avg score ${avgScore || '—'} · Best ${bestScore || '—'}`
                   }
                 </p>

@@ -153,7 +153,7 @@ export default function Setup() {
             {loading ? (
               <span style={styles.loadingRow}>
                 <span style={styles.spinner} />
-                🤖 Claude is generating your questions...
+                🤖 AI is generating your questions...
               </span>
             ) : (
               '🚀 Start Interview →'
@@ -161,7 +161,7 @@ export default function Setup() {
           </button>
           {loading && (
             <p style={styles.loadingHint}>
-              This takes 5-10 seconds. Claude is crafting personalized questions for you.
+              This takes 5-10 seconds. AI is crafting personalized questions for you.
             </p>
           )}
         </div>
