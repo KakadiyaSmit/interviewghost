@@ -203,7 +203,7 @@ export default function Register() {
         </div>
 
         <div className="animate-fade-up stagger-3" style={styles.pills}>
-          {['🤖 AI Powered', '📊 Smart Scoring', '🎯 Role-specific'].map((f, i) => (
+          {['✨ AI Powered', '📊 Smart Scoring', '🎯 Role-specific'].map((f, i) => (
             <div key={i} style={styles.pill}>{f}</div>
           ))}
         </div>

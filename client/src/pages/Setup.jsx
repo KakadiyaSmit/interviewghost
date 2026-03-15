@@ -153,7 +153,7 @@ export default function Setup() {
             {loading ? (
               <span style={styles.loadingRow}>
                 <span style={styles.spinner} />
-                🤖 AI is generating your questions...
+                ✨ AI is generating your questions...
               </span>
             ) : (
               '🚀 Start Interview →'

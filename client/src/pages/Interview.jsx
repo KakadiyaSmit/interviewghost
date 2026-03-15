@@ -309,7 +309,7 @@ export default function Interview() {
               {submitting ? (
                 <span style={styles.loadingRow}>
                   <span style={styles.spinner} />
-                  🤖 AI is evaluating...
+                  ✨ AI is evaluating...
                 </span>
               ) : current + 1 === questions.length ? '🏁 Finish Interview' : 'Submit & Next →'}
             </button>
