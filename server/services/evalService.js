@@ -113,6 +113,44 @@ Evaluate this answer and return ONLY a valid JSON object. No markdown, no backti
     [questionId]
   );
 
+  // Check if all questions are answered → mark session complete
+  const sessionCheck = await pool.query(
+    `SELECT s.id, s.total_questions, s.completed_questions
+     FROM sessions s
+     JOIN questions q ON q.session_id = s.id
+     WHERE q.id = $1`,
+    [questionId]
+  );
+
+  const session = sessionCheck.rows[0];
+  if (session && session.completed_questions + 1 >= session.total_questions) {
+    // Calculate average scores from all evaluations
+    const avgResult = await pool.query(
+      `SELECT 
+        AVG(overall_score) as avg_score,
+        AVG(success_probability) as avg_prob
+       FROM evaluations 
+       WHERE question_id IN (
+         SELECT id FROM questions WHERE session_id = $1
+       )`,
+      [session.id]
+    );
+
+    const avgScore = Math.round(avgResult.rows[0].avg_score || 0);
+    const avgProb = Math.round(avgResult.rows[0].avg_prob || 0);
+
+    await pool.query(
+      `UPDATE sessions 
+       SET status = 'completed', 
+           overall_score = $1,
+           success_probability = $2,
+           completed_at = CURRENT_TIMESTAMP,
+           completed_questions = total_questions
+       WHERE id = $3`,
+      [avgScore, avgProb, session.id]
+    );
+  }
+
   return savedEval.rows[0];
 };
 
