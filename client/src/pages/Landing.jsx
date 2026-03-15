@@ -272,7 +272,7 @@ export default function Landing() {
                   <div key={f} style={s.pricingFeature}><span style={{ color: 'var(--green)' }}>✓</span> {f}</div>
                 ))}
               </div>
-              <button className="btn-primary" style={s.pricingBtn} onClick={() => navigate('/register')}>Get Started Free</button>
+              
             </div>
             <div style={{ ...s.pricingCard, ...s.pricingCardPro }}>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -287,7 +287,7 @@ export default function Landing() {
                   <div key={f} style={s.pricingFeature}><span style={{ color: 'var(--purple-bright)' }}>✓</span> {f}</div>
                 ))}
               </div>
-              <button className="btn-primary" style={{ ...s.pricingBtn, animation: 'pulse-glow 2s ease infinite' }} onClick={() => navigate('/register')}>Start Pro Trial →</button>
+              
             </div>
           </div>
         </div>
