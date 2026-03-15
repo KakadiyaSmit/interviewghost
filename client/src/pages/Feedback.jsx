@@ -178,8 +178,10 @@ export default function Feedback() {
 
       <div style={styles.container}>
         {/* Top nav */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <button onClick={() => navigate('/dashboard')} style={{ background: 'transparent', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>
+        <div className="animate-fade-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <button onClick={() => navigate('/dashboard')} style={{ background: 'transparent', border: '1px solid rgba(139,92,246,0.3)', color: '#a78bfa', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontFamily: 'var(--font-mono)', transition: 'all 0.2s ease' }}
+            onMouseEnter={e => e.target.style.background='rgba(139,92,246,0.1)'}
+            onMouseLeave={e => e.target.style.background='transparent'}>
             ← Dashboard
           </button>
           <span style={{ fontSize: '20px' }}>👻</span>
