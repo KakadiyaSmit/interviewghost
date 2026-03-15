@@ -1,5 +1,6 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { useAuth } from '../context/AuthContext'
 
 const ROLES = ['Software Engineer', 'Frontend Engineer', 'Backend Engineer', 'Full Stack Engineer', 'Data Scientist', 'Product Manager']
 const STATS = [
@@ -59,6 +60,8 @@ function useIsMobile() {
 }
 
 export default function Landing() {
+  const { user } = useAuth()
+  if (user) return <Navigate to="/dashboard" />
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const [roleIndex, setRoleIndex] = useState(0)
