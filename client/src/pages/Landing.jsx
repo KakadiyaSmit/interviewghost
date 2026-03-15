@@ -275,7 +275,10 @@ export default function Landing() {
               <button className="btn-primary" style={s.pricingBtn} onClick={() => navigate('/register')}>Get Started Free</button>
             </div>
             <div style={{ ...s.pricingCard, ...s.pricingCardPro }}>
-              <div style={s.pricingProBadge}>Most Popular</div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div style={s.pricingProBadge}>Most Popular</div>
+                <div style={{ background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#a78bfa', fontSize: '10px', padding: '2px 10px', borderRadius: '100px', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Coming Soon</div>
+              </div>
               <div style={s.pricingName}>Pro</div>
               <div style={{ ...s.pricingPrice, color: 'var(--purple-bright)' }}>$12<span style={s.pricingPer}>/month</span></div>
               <div style={s.pricingDesc}>For serious candidates</div>
